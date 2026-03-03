@@ -10,7 +10,6 @@ xZero.Hooks = {}
 _Inventory = {}
 _Accounts = {}
 _Money = nil;
-_currentWeaponHash = nil;
 
 _securityGains = {}
 
@@ -72,6 +71,9 @@ local function CheckAbnormalGain(itemName, itemLabel, gainAmount, currentCount)
     end
 end
 
+
+
+
 local function NormalizeWeaponData(weaponArg, ammoArg)
     local weaponName = weaponArg
     local ammo = ammoArg
@@ -79,11 +81,6 @@ local function NormalizeWeaponData(weaponArg, ammoArg)
     if type(weaponArg) == 'table' then
         weaponName = weaponArg.name or weaponArg.weaponName or weaponArg.weapon
         ammo = weaponArg.ammo or ammoArg or 0
-    end
-
-    if type(weaponName) == 'number' then
-        local resolvedName, resolvedLabel = GetWeapon(weaponName)
-        return resolvedName or tostring(weaponName), resolvedLabel or tostring(weaponName), ammo or 0
     end
 
     if type(weaponName) ~= 'string' then
@@ -97,7 +94,6 @@ local function NormalizeWeaponData(weaponArg, ammoArg)
 
     return weaponName, weaponLabel, ammo or 0
 end
-
 
 Citizen.CreateThread(function()
 	while ESX == nil do
@@ -132,6 +128,7 @@ Run = function()
         _Money = ESX.GetPlayerData().money;
         xZero.Hooks.Accounts_Request()
     end
+
     RegisterNetEvent('esx:addWeapon')
     AddEventHandler('esx:addWeapon', function(weaponName, ammo)
         if not Config.WeaponAdd_Notify then return end
@@ -218,24 +215,7 @@ Run = function()
             end
         end)
     end
-    if Config.WeaponUse_Notify then
-        Citizen.CreateThread(function()
-            while true do
-                Wait(500)
-                local s = PlayerPedId()
-                if not IsEntityDead(s) then
-                    local t = GetSelectedPedWeapon(s)
-                    if not _currentWeaponHash or _currentWeaponHash ~= t then
-                        _currentWeaponHash = t;
-                        local u, v = GetWeapon(_currentWeaponHash)
-                        if u then
-                            NUI_Notify(v, u, 0, 'use_weapon')
-                        end
-                    end
-                end
-            end
-        end)
-    end
+
 end
 xZero.Hooks.Accounts_Request = function()
     RegisEvent(true, GetName(':client:Accounts:Receive'), function(w)
@@ -256,13 +236,4 @@ function NUI_Notify(x, l, y, type, remaining)
         type = type,
         remaining = remaining
     })
-end
-function GetWeapon(z)
-    local A = ESX.GetWeaponList()
-    if A then
-        for g, h in ipairs(A) do
-            if GetHashKey(h.name) == z then return h.name, h.label end
-        end
-    end
-    return nil, nil
 end

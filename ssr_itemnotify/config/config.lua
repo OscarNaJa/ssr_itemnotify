@@ -7,18 +7,15 @@ Config.TimeOut = 5000 * 1000 -- กำหนดเวลาให้แจ้ง
 -- layout-uptodown = บนลงล่าง | -- layout-downtoup = ล่างขึ้นบน
 Config.Layout = 'layout-downtoup'
 
--- true = แจ้งเตือนเมื่อถือ/สลับอาวุธอยู่ในมือ
-Config.WeaponUse_Notify = true
--- true = แจ้งเตือนเมื่อได้รับอาวุธเข้าตัว (esx:addWeapon)
+-- true = แจ้งเตือนเมื่อได้รับอาวุธเข้าตัว (esx:addWeapon / esx:addWeaponItem)
 Config.WeaponAdd_Notify = true
--- true = แจ้งเตือนเมื่ออาวุธถูกเอาออกจากตัว (esx:removeWeapon)
+-- true = แจ้งเตือนเมื่ออาวุธถูกเอาออกจากตัว (esx:removeWeapon / esx:removeWeaponItem)
 Config.WeaponRemove_Notify = true
 
 -- Prefix
 Config.Prefix = {
     added = 'Added',
     remove = 'Removed',
-    use_weapon = 'Use'
 }
 
 -- สำหรับคนที่ใช้ es_extended ตัวใหม่ตั้งค่า Config.es_extended_old = false เพื่อปิดใช้งานในส่วนที่ไม่จำเป็น
