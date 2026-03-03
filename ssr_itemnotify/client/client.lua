@@ -74,6 +74,27 @@ end
 
 
 
+local function NormalizeWeaponData(weaponArg, ammoArg)
+    local weaponName = weaponArg
+    local ammo = ammoArg
+
+    if type(weaponArg) == 'table' then
+        weaponName = weaponArg.name or weaponArg.weaponName or weaponArg.weapon
+        ammo = weaponArg.ammo or ammoArg or 0
+    end
+
+    if type(weaponName) ~= 'string' then
+        weaponName = tostring(weaponName or 'unknown_weapon')
+    end
+
+    local weaponLabel = ESX.GetWeaponLabel(weaponName)
+    if not weaponLabel then
+        weaponLabel = weaponName
+    end
+
+    return weaponName, weaponLabel, ammo or 0
+end
+
 Citizen.CreateThread(function()
 	while ESX == nil do
 		TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
@@ -107,6 +128,40 @@ Run = function()
         _Money = ESX.GetPlayerData().money;
         xZero.Hooks.Accounts_Request()
     end
+
+    RegisterNetEvent('esx:addWeapon')
+    AddEventHandler('esx:addWeapon', function(weaponName, ammo)
+        if not Config.WeaponAdd_Notify then return end
+
+        local normalizedName, normalizedLabel, normalizedAmmo = NormalizeWeaponData(weaponName, ammo)
+        NUI_Notify(normalizedLabel, normalizedName, tonumber(normalizedAmmo) or 1, 'added')
+    end)
+
+    RegisterNetEvent('esx:removeWeapon')
+    AddEventHandler('esx:removeWeapon', function(weaponName, ammo)
+        if not Config.WeaponRemove_Notify then return end
+
+        local normalizedName, normalizedLabel, normalizedAmmo = NormalizeWeaponData(weaponName, ammo)
+        local removedAmount = (ammo == nil) and 1 or (tonumber(normalizedAmmo) or 1)
+        NUI_Notify(normalizedLabel, normalizedName, removedAmount, 'remove')
+    end)
+
+    RegisterNetEvent('esx:addWeaponItem')
+    AddEventHandler('esx:addWeaponItem', function(weaponName, ammo)
+        if not Config.WeaponAdd_Notify then return end
+
+        local normalizedName, normalizedLabel, normalizedAmmo = NormalizeWeaponData(weaponName, ammo)
+        NUI_Notify(normalizedLabel, normalizedName, tonumber(normalizedAmmo) or 1, 'added')
+    end)
+
+    RegisterNetEvent('esx:removeWeaponItem')
+    AddEventHandler('esx:removeWeaponItem', function(weaponName, ammo)
+        if not Config.WeaponRemove_Notify then return end
+
+        local normalizedName, normalizedLabel, normalizedAmmo = NormalizeWeaponData(weaponName, ammo)
+        local removedAmount = (ammo == nil) and 1 or (tonumber(normalizedAmmo) or 1)
+        NUI_Notify(normalizedLabel, normalizedName, removedAmount, 'remove')
+    end)
     RegisEvent(true, 'esx:addInventoryItem', function(l, m)
         if l then
             if type(l) == 'table' then

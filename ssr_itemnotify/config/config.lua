@@ -7,6 +7,11 @@ Config.TimeOut = 5000 * 1000 -- กำหนดเวลาให้แจ้ง
 -- layout-uptodown = บนลงล่าง | -- layout-downtoup = ล่างขึ้นบน
 Config.Layout = 'layout-downtoup'
 
+-- true = แจ้งเตือนเมื่อได้รับอาวุธเข้าตัว (esx:addWeapon / esx:addWeaponItem)
+Config.WeaponAdd_Notify = true
+-- true = แจ้งเตือนเมื่ออาวุธถูกเอาออกจากตัว (esx:removeWeapon / esx:removeWeaponItem)
+Config.WeaponRemove_Notify = true
+
 -- Prefix
 Config.Prefix = {
     added = 'Added',
