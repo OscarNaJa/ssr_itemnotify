@@ -10,7 +10,6 @@ xZero.Hooks = {}
 _Inventory = {}
 _Accounts = {}
 _Money = nil;
-_currentWeaponHash = nil;
 
 _securityGains = {}
 
@@ -72,31 +71,7 @@ local function CheckAbnormalGain(itemName, itemLabel, gainAmount, currentCount)
     end
 end
 
-local function NormalizeWeaponData(weaponArg, ammoArg)
-    local weaponName = weaponArg
-    local ammo = ammoArg
 
-    if type(weaponArg) == 'table' then
-        weaponName = weaponArg.name or weaponArg.weaponName or weaponArg.weapon
-        ammo = weaponArg.ammo or ammoArg or 0
-    end
-
-    if type(weaponName) == 'number' then
-        local resolvedName, resolvedLabel = GetWeapon(weaponName)
-        return resolvedName or tostring(weaponName), resolvedLabel or tostring(weaponName), ammo or 0
-    end
-
-    if type(weaponName) ~= 'string' then
-        weaponName = tostring(weaponName or 'unknown_weapon')
-    end
-
-    local weaponLabel = ESX.GetWeaponLabel(weaponName)
-    if not weaponLabel then
-        weaponLabel = weaponName
-    end
-
-    return weaponName, weaponLabel, ammo or 0
-end
 
 
 Citizen.CreateThread(function()
@@ -132,39 +107,6 @@ Run = function()
         _Money = ESX.GetPlayerData().money;
         xZero.Hooks.Accounts_Request()
     end
-    RegisterNetEvent('esx:addWeapon')
-    AddEventHandler('esx:addWeapon', function(weaponName, ammo)
-        if not Config.WeaponAdd_Notify then return end
-
-        local normalizedName, normalizedLabel, normalizedAmmo = NormalizeWeaponData(weaponName, ammo)
-        NUI_Notify(normalizedLabel, normalizedName, tonumber(normalizedAmmo) or 1, 'added')
-    end)
-
-    RegisterNetEvent('esx:removeWeapon')
-    AddEventHandler('esx:removeWeapon', function(weaponName, ammo)
-        if not Config.WeaponRemove_Notify then return end
-
-        local normalizedName, normalizedLabel, normalizedAmmo = NormalizeWeaponData(weaponName, ammo)
-        local removedAmount = (ammo == nil) and 1 or (tonumber(normalizedAmmo) or 1)
-        NUI_Notify(normalizedLabel, normalizedName, removedAmount, 'remove')
-    end)
-
-    RegisterNetEvent('esx:addWeaponItem')
-    AddEventHandler('esx:addWeaponItem', function(weaponName, ammo)
-        if not Config.WeaponAdd_Notify then return end
-
-        local normalizedName, normalizedLabel, normalizedAmmo = NormalizeWeaponData(weaponName, ammo)
-        NUI_Notify(normalizedLabel, normalizedName, tonumber(normalizedAmmo) or 1, 'added')
-    end)
-
-    RegisterNetEvent('esx:removeWeaponItem')
-    AddEventHandler('esx:removeWeaponItem', function(weaponName, ammo)
-        if not Config.WeaponRemove_Notify then return end
-
-        local normalizedName, normalizedLabel, normalizedAmmo = NormalizeWeaponData(weaponName, ammo)
-        local removedAmount = (ammo == nil) and 1 or (tonumber(normalizedAmmo) or 1)
-        NUI_Notify(normalizedLabel, normalizedName, removedAmount, 'remove')
-    end)
     RegisEvent(true, 'esx:addInventoryItem', function(l, m)
         if l then
             if type(l) == 'table' then
@@ -218,24 +160,7 @@ Run = function()
             end
         end)
     end
-    if Config.WeaponUse_Notify then
-        Citizen.CreateThread(function()
-            while true do
-                Wait(500)
-                local s = PlayerPedId()
-                if not IsEntityDead(s) then
-                    local t = GetSelectedPedWeapon(s)
-                    if not _currentWeaponHash or _currentWeaponHash ~= t then
-                        _currentWeaponHash = t;
-                        local u, v = GetWeapon(_currentWeaponHash)
-                        if u then
-                            NUI_Notify(v, u, 0, 'use_weapon')
-                        end
-                    end
-                end
-            end
-        end)
-    end
+
 end
 xZero.Hooks.Accounts_Request = function()
     RegisEvent(true, GetName(':client:Accounts:Receive'), function(w)
@@ -256,13 +181,4 @@ function NUI_Notify(x, l, y, type, remaining)
         type = type,
         remaining = remaining
     })
-end
-function GetWeapon(z)
-    local A = ESX.GetWeaponList()
-    if A then
-        for g, h in ipairs(A) do
-            if GetHashKey(h.name) == z then return h.name, h.label end
-        end
-    end
-    return nil, nil
 end
